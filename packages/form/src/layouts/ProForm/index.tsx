@@ -14,6 +14,8 @@ function ProForm<T = Record<string, any>>(props: ProFormProps<T>) {
     <BaseForm
       layout="vertical"
       submitter={{
+        twiceConfirm: props?.twiceConfirm || false,
+        twiceConfirmText: props?.twiceConfirmText || '确认提交吗?',
         // 反转按钮，在正常模式下，按钮应该是主按钮在前
         render: (_, dom) => dom.reverse(),
       }}

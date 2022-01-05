@@ -99,6 +99,12 @@ export type CommonFormProps<
 
   /** 自动选中第一项 */
   autoFocusFirstInput?: boolean;
+
+  /** 是否开启二次确认 */
+  twiceConfirm?: boolean;
+
+  /** 二次确认提示文案 */
+  twiceConfirmText?: string;
 };
 
 export type BaseFormProps<T = Record<string, any>> = {

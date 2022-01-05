@@ -1,6 +1,6 @@
 import React from 'react';
 import type { FormInstance, ButtonProps } from 'antd';
-import { Button, Space } from 'antd';
+import { Button, Space, Popconfirm } from 'antd';
 import omit from 'omit.js';
 import { useIntl } from '@ant-design/pro-provider';
 
@@ -23,6 +23,10 @@ export type SubmitterProps<T = Record<string, any>> = {
   submitButtonProps?: false | (ButtonProps & { preventDefault?: boolean });
   /** @name 重置按钮的 props */
   resetButtonProps?: false | (ButtonProps & { preventDefault?: boolean });
+  /** @name 是否开启二次确认 */
+  twiceConfirm?: boolean;
+  /** @name 二次确认提示文案 */
+  twiceConfirmText?: string;
   /** @name 自定义操作的渲染 */
   render?:
     | ((
@@ -88,8 +92,23 @@ const Submitter: React.FC<SubmitterProps & { form: FormInstance }> = (props) => 
       </Button>,
     );
   }
+  /** 默认值在透传下来时已经给过, 这里不添加默认值 */
+  const { twiceConfirm, twiceConfirmText } = props;
+
   if (submitButtonProps !== false) {
-    dom.push(
+    const submitDom = twiceConfirm ? (
+      <Popconfirm
+        title={twiceConfirmText}
+        onConfirm={(e) => {
+          if (!submitButtonProps?.preventDefault) submit();
+          submitButtonProps?.onClick?.(e as any);
+        }}
+      >
+        <Button type="primary" {...omit(submitButtonProps || {}, ['preventDefault'])} key="submit">
+          {submitText}
+        </Button>
+      </Popconfirm>
+    ) : (
       <Button
         type="primary"
         {...omit(submitButtonProps || {}, ['preventDefault'])}
@@ -100,8 +119,9 @@ const Submitter: React.FC<SubmitterProps & { form: FormInstance }> = (props) => 
         }}
       >
         {submitText}
-      </Button>,
+      </Button>
     );
+    dom.push(submitDom);
   }
 
   const renderDom = render ? render({ ...props, submit, reset }, dom) : dom;
@@ -115,7 +135,7 @@ const Submitter: React.FC<SubmitterProps & { form: FormInstance }> = (props) => 
     if (renderDom?.length === 1) {
       return renderDom[0] as JSX.Element;
     }
-    return <Space>{renderDom}</Space>;
+    return <Space wrap>{renderDom}</Space>;
   }
   return renderDom as JSX.Element;
 };
